@@ -3,13 +3,15 @@ package com.example.project.controller;
 import com.example.project.models.Priority;
 import com.example.project.models.Task;
 import com.example.project.models.TaskSearchFilter;
+import com.example.project.models.User;
 import com.example.project.utilities.TaskService;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,44 +57,54 @@ public class TaskController {
     @PostMapping()
     public ResponseEntity<Task> createTask(
             @RequestBody
-            Task taskToCreate
+            Task taskToCreate,
+            Authentication authentication
     ){
+        User user = (User) authentication.getPrincipal();
         log.info("New Task Created");
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(taskToCreate));
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(taskToCreate, user));
     }
 
     @PostMapping("/{id}/complete")
     public ResponseEntity<Task> completeTask(
-            @PathVariable("id") long id
+            @PathVariable("id") long id,
+            Authentication authentication
     ){
+        User user = (User) authentication.getPrincipal();
         log.info("Called complete task");
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.completeTask(id));
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.completeTask(id, user));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> putTaskById(
             @RequestBody
             Task taskToPut,
-            @PathVariable("id") long id
+            @PathVariable("id") long id,
+            Authentication authentication
 
     ){
+        User user = (User) authentication.getPrincipal();
         log.info("Called PutId");
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.putTaskById(id, taskToPut));
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.putTaskById(id, taskToPut, user));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTaskById(
 
-            @PathVariable("id") long id
+            @PathVariable("id") long id,
+            Authentication authentication
     ) {
+        User user = (User) authentication.getPrincipal();
         log.info("Called DeleteId");
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.deleteTaskById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.deleteTaskById(id, user));
     }
     @PutMapping("/{id}/start")
     public ResponseEntity<?> makeTaskProgress(
-            @PathVariable("id") long id
+            @PathVariable("id") long id,
+            Authentication authentication
     ) {
+            User user = (User) authentication.getPrincipal();
             log.info("Called makeTaskProgress, id: " + id);
-            return ResponseEntity.status(HttpStatus.OK).body(taskService.startTask(id));
+            return ResponseEntity.status(HttpStatus.OK).body(taskService.startTask(id, user));
         }
 }

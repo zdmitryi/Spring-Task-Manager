@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class GlobalExceptionHandler {
         ));
     }
 
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleEntityNotFoundException(EntityNotFoundException e){
         log.error("Handle entity not found exception", e);
@@ -32,6 +34,7 @@ public class GlobalExceptionHandler {
                 "Entity not found", e.getMessage(), LocalDateTime.now()
         ));
     }
+
 
     @ExceptionHandler(exception = {
             IllegalArgumentException.class,
@@ -46,10 +49,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ErrorResponseDto> handleNosuchElementException(Exception e){
+    public ResponseEntity<ErrorResponseDto> handleNoSuchElementException(Exception e){
         log.error("Handle no such element exception", e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDto(
                 "No such element", e.getMessage(), LocalDateTime.now()
+        ));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDto> handleAccessDeniedException(AccessDeniedException e){
+        log.error("Handle access denied exception", e);
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ErrorResponseDto(
+                "Permission denied", e.getMessage(), LocalDateTime.now()
         ));
     }
 
